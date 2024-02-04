@@ -88,7 +88,23 @@ from sklearn.cluster import KMeans
 from faker import Faker
 
 app = Flask(__name__)
-
+hospitals_data = [{'latitude': 28.58, 'longitude': 77.20, 'name': 'Hospital 1'},
+        {'latitude': 28.59, 'longitude': 77.23, 'name': 'Hospital 2'}]
+fire_stations_data = [{'latitude': 28.619, 'longitude': 77.069, 'name': 'Fire Station 1'},
+    {'latitude': 28.564, 'longitude': 77.244, 'name': 'Fire Station 2'},
+    {'latitude': 28.654, 'longitude': 77.178, 'name': 'Fire Station 3'},
+    {'latitude': 28.587, 'longitude': 77.243, 'name': 'Fire Station 4'},
+    {'latitude': 28.623, 'longitude': 77.193, 'name': 'Fire Station 5'},
+    {'latitude': 28.575, 'longitude': 77.198, 'name': 'Fire Station 6'},
+    {'latitude': 28.611, 'longitude': 77.221, 'name': 'Fire Station 7'},
+    {'latitude': 28.639, 'longitude': 77.094, 'name': 'Fire Station 8'},
+    {'latitude': 28.599, 'longitude': 77.267, 'name': 'Fire Station 9'},
+    {'latitude': 28.552, 'longitude': 77.185, 'name': 'Fire Station 10'},
+    {'latitude': 28.632, 'longitude': 77.121, 'name': 'Fire Station 11'},
+    {'latitude': 28.602, 'longitude': 77.252, 'name': 'Fire Station 12'},
+    {'latitude': 28.571, 'longitude': 77.231, 'name': 'Fire Station 13'},
+    {'latitude': 28.648, 'longitude': 77.173, 'name': 'Fire Station 14'},
+    {'latitude': 28.619, 'longitude': 77.200, 'name': 'Fire Station 15'}]
 def generate_dummy_fire_dataset_delhi(num_points, num_fire_incidents):
     # Your existing function code remains the same
     fake = Faker()
@@ -132,7 +148,10 @@ def apply_kmeans(coordinates, num_clusters):
     clusters = kmeans.predict(coordinates)
     return clusters
 
-def visualize_map(dummy_data, clusters, num_clusters):
+def visualize_map(dummy_data, clusters, num_clusters,fire_stations_data,hospitals_data):
+
+    
+
     my_map = folium.Map(location=[28.6139, 77.2090], zoom_start=10, control_scale=True)
 
     # Your existing visualization code remains the same
@@ -152,6 +171,20 @@ def visualize_map(dummy_data, clusters, num_clusters):
         ).add_to(my_map)
 
     #my_map.save('kmeans_map.html')
+    for fire_station in fire_stations_data:
+        folium.Marker(
+            location=[fire_station['latitude'], fire_station['longitude']],
+            popup=f"Fire Station: {fire_station['name']}",
+            icon=folium.Icon(color='black')
+        ).add_to(my_map)
+
+    # Add markers for hospitals
+    for hospital in hospitals_data:
+        folium.Marker(
+            location=[hospital['latitude'], hospital['longitude']],
+            popup=f"Hospital: {hospital['name']}",
+            icon=folium.Icon(color='pink')
+        ).add_to(my_map)
 
     my_map.save('templates/kmeans_map.html')  # Save the map in the 'templates' folder
 
@@ -168,8 +201,33 @@ def index():
     # Print the assigned clusters for debugging
     print("Assigned Clusters:", clusters)
 
-    
-    visualize_map(dummy_data, clusters, num_clusters)
+    fire_stations_data = [{'latitude': 28.619, 'longitude': 77.069, 'name': 'Fire Station 1'},
+    {'latitude': 28.564, 'longitude': 76.803, 'name': 'Fire Station 2'},
+    {'latitude': 28.654, 'longitude': 77.178, 'name': 'Fire Station 3'},
+    {'latitude': 28.507, 'longitude': 76.935, 'name': 'Fire Station 4'},
+    {'latitude': 28.784, 'longitude': 77.555, 'name': 'Fire Station 5'},
+    {'latitude': 28.720, 'longitude': 77.198, 'name': 'Fire Station 6'},
+    {'latitude': 28.810, 'longitude': 77.347, 'name': 'Fire Station 7'},
+    {'latitude': 28.894, 'longitude': 77.418, 'name': 'Fire Station 8'},
+    {'latitude': 28.850, 'longitude': 76.874, 'name': 'Fire Station 9'},
+    {'latitude': 28.673, 'longitude': 76.904, 'name': 'Fire Station 10'},
+    {'latitude': 28.685, 'longitude': 77.498, 'name': 'Fire Station 11'},
+    {'latitude': 28.516, 'longitude': 77.201, 'name': 'Fire Station 12'},
+    {'latitude': 28.584, 'longitude': 77.231, 'name': 'Fire Station 13'},
+    {'latitude': 28.835, 'longitude': 77.343, 'name': 'Fire Station 14'},
+    {'latitude': 28.759, 'longitude': 76.888, 'name': 'Fire Station 15'}]
+
+    hospitals_data = [ {'latitude': 28.58, 'longitude': 77.20, 'name': 'Hospital 1'},
+    {'latitude': 28.59, 'longitude': 77.18, 'name': 'Hospital 2'},
+    {'latitude': 28.53, 'longitude': 77.21, 'name': 'Hospital 3'},
+    {'latitude': 28.60, 'longitude': 77.42, 'name': 'Hospital 4'},
+    {'latitude': 28.75, 'longitude': 77.39, 'name': 'Hospital 5'},
+    {'latitude': 28.65, 'longitude': 76.9, 'name': 'Hospital 6'},
+    {'latitude': 28.80, 'longitude': 77.29, 'name': 'Hospital 7'},
+    {'latitude': 28.72, 'longitude': 77.04, 'name': 'Hospital 8'},
+    {'latitude': 28.86, 'longitude': 77.45, 'name': 'Hospital 9'},
+    {'latitude': 28.83, 'longitude': 77.09, 'name': 'Hospital 10'}]
+    visualize_map(dummy_data, clusters, num_clusters,fire_stations_data,hospitals_data)
     return render_template('kmeans_map.html')  # Render the HTML template containing the map
 
 if __name__ == '__main__':
