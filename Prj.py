@@ -341,7 +341,7 @@ def visualize_map(dummy_data, clusters, num_clusters,fire_stations_data,hospital
             icon=folium.Icon(color='orange')
         ).add_to(my_map)
 
-    my_map.save('templates/kmeans_map.html')  # Save the map in the 'templates' folder
+    my_map.save('static/kmeans_map.html')  # Save the map in the 'templates' folder
 
 @app.route('/')
 def index():
@@ -383,7 +383,7 @@ def index():
     {'latitude': 28.86, 'longitude': 77.45, 'name': 'Hospital 9'},
     {'latitude': 28.83, 'longitude': 77.09, 'name': 'Hospital 10'}]
     visualize_map(dummy_data, clusters, num_clusters,fire_stations_data,hospitals_data)
-    return render_template('kmeans_map.html')  # Render the HTML template containing the map
+    return render_template('kmeans_map_dashboard.html')  # Render the HTML template containing the map
 
 @app.route('/update_fire_data', methods=['POST'])
 def update_fire_data():
@@ -399,6 +399,55 @@ def update_fire_data():
     visualize_map(dummy_fire_data, clusters, fire_stations_data, hospitals_data)
 
     return jsonify({'message': 'Fire data updated successfully!'})
+
+from flask import render_template, request, redirect, url_for
+
+@app.route('/add_location', methods=['GET', 'POST'])
+def add_location():
+    if request.method == 'POST':
+        # Assuming you have a form with fields 'latitude' and 'longitude'
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
+
+        # Process the data, e.g., save it to a database
+        # Your logic to add the location goes here
+
+        # Redirect to a different page after adding the location
+        return redirect(url_for('dashboard.html'))  # Change 'dashboard' to your actual endpoint
+
+    # Render the form to add a location
+    return render_template('add_location_form.html')  # Create this template with your form fields
+
+@app.route('/add_firestation', methods=['GET', 'POST'])
+def add_firestation():
+    if request.method == 'POST':
+        # Assuming you have a form with fields 'latitude' and 'longitude'
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
+
+        # Process the data, e.g., save it to a database
+        # Your logic to add the location goes here
+
+        # Redirect to a different page after adding the location
+        return redirect(url_for('dashboard.html'))  # Change 'dashboard' to your actual endpoint
+
+    # Render the form to add a location
+    return render_template('add_firestation_form.html')  # Create this template with your form fields
+@app.route('/add_hospital', methods=['GET', 'POST'])
+def add_hospital():
+    if request.method == 'POST':
+        # Assuming you have a form with fields 'latitude' and 'longitude'
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
+
+        # Process the data, e.g., save it to a database
+        # Your logic to add the location goes here
+
+        # Redirect to a different page after adding the location
+        return redirect(url_for('dashboard.html'))  # Change 'dashboard' to your actual endpoint
+
+    # Render the form to add a location
+    return render_template('add_hospital_form.html')  # Create this template with your form fields
 
 if __name__ == '__main__':
     app.run(debug=True)
