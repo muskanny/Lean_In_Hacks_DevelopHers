@@ -1,27 +1,72 @@
 /* static/style.css */
 
+/* Style for Navigation Bar */
+.navbar {
+    margin-bottom: 20px;
+}
+
+.navbar-dark {
+    background-color: #102233; /* Dark background color */
+}
+
+.navbar-dark .navbar-brand,
+.navbar-dark .navbar-nav .nav-link {
+    color: #ffffff; /* White text color */
+}
+
+.navbar-dark .navbar-toggler-icon {
+    background-color: #ffffff; /* White color for the toggler icon */
+}
+
+/* Style for Content Area */
+.container {
+    background-color: #85a9cc; /* Light gray background color */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(2, 22, 71, 0.1); /* Box shadow for a subtle effect */
+}
+/* static/main.css */
+/* Add your navigation bar styles here */
+.navbar {
+    background-color: #051d4d;
+    overflow: hidden;
+}
+
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.navbar li {
+    float: left;
+}
+
+.navbar a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 7px 8px;
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    background-color: #8a72ec;
+    color: black;
+}
+
 body {
-    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
 }
 
-header {
-    background-color: #333;
-    padding: 10px;
-    text-align: center;
-    color: white;
+#map {
+    height: 100vh;
 }
+/* Additional Styles for Map or Content Blocks if Needed */
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+/* Add space between navbar items */
+.navbar-nav .nav-item {
+    margin-right: 300px; /* You can adjust this value to control the spacing */
 }
-
- #map {
-    height: 50px;
-    margin-top: 20px;
-} 
-
-/* Add any additional styling as needed */
