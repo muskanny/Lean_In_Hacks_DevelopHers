@@ -1,2 +1,2 @@
 Flask==2.3.2
-Folium==0.1.5
+folium==0.1.5
