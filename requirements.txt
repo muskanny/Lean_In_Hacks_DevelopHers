@@ -1,2 +1,4 @@
-Flask==2.3.2
-folium==0.1.5
+flask==2.0.1
+folium==0.12.1
+scikit-learn==0.24.2
+Faker==10.15.0
