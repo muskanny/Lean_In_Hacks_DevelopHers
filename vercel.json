@@ -10,5 +10,10 @@
             "src":"/(.*)", 
             "dest":"Prj.py"
         }
-    ]
+    ],
+
+    "dependencies": {
+        "flask":"2.3.2" 
+      }
+      
 } 
