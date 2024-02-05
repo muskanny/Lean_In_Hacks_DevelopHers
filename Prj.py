@@ -233,7 +233,7 @@
 # if __name__ == '__main__':
 #     app.run(debug=True)
 
-
+'''
 from flask import Flask, render_template
 import folium
 import random
@@ -448,6 +448,208 @@ def add_hospital():
 
     # Render the form to add a location
     return render_template('add_hospital_form.html')  # Create this template with your form fields
+
+if __name__ == '__main__':
+    app.run(debug=True)
+    '''
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+import folium
+import random
+from datetime import datetime, timedelta
+from sklearn.cluster import KMeans
+from faker import Faker
+
+app = Flask(__name__)
+
+hospitals_data = [ {'latitude': 28.58, 'longitude': 77.20, 'name': 'Hospital 1'},
+    {'latitude': 28.59, 'longitude': 77.18, 'name': 'Hospital 2'},
+     {'latitude': 28.53, 'longitude': 77.21, 'name': 'Hospital 3'},
+     {'latitude': 28.60, 'longitude': 77.42, 'name': 'Hospital 4'},
+    {'latitude': 28.75, 'longitude': 77.39, 'name': 'Hospital 5'},
+    {'latitude': 28.65, 'longitude': 76.9, 'name': 'Hospital 6'},
+     {'latitude': 28.80, 'longitude': 77.29, 'name': 'Hospital 7'},
+     {'latitude': 28.72, 'longitude': 77.04, 'name': 'Hospital 8'},
+    {'latitude': 28.86, 'longitude': 77.45, 'name': 'Hospital 9'},
+     {'latitude': 28.83, 'longitude': 77.09, 'name': 'Hospital 10'}]
+
+fire_stations_data = [{'latitude': 28.619, 'longitude': 77.069, 'name': 'Fire Station 1'},
+    {'latitude': 28.564, 'longitude': 76.803, 'name': 'Fire Station 2'},
+    {'latitude': 28.654, 'longitude': 77.178, 'name': 'Fire Station 3'},
+    {'latitude': 28.507, 'longitude': 76.935, 'name': 'Fire Station 4'},
+    {'latitude': 28.784, 'longitude': 77.555, 'name': 'Fire Station 5'},
+    {'latitude': 28.720, 'longitude': 77.198, 'name': 'Fire Station 6'},
+    {'latitude': 28.810, 'longitude': 77.347, 'name': 'Fire Station 7'},
+    {'latitude': 28.894, 'longitude': 77.418, 'name': 'Fire Station 8'},
+    {'latitude': 28.850, 'longitude': 76.874, 'name': 'Fire Station 9'},
+    {'latitude': 28.673, 'longitude': 76.904, 'name': 'Fire Station 10'},
+    {'latitude': 28.685, 'longitude': 77.498, 'name': 'Fire Station 11'},
+    {'latitude': 28.516, 'longitude': 77.201, 'name': 'Fire Station 12'},
+    {'latitude': 28.584, 'longitude': 77.231, 'name': 'Fire Station 13'},
+    {'latitude': 28.835, 'longitude': 77.343, 'name': 'Fire Station 14'},
+    {'latitude': 28.759, 'longitude': 76.200, 'name': 'Fire Station 15'}]
+
+dummy_data = []  # Initialize an empty list for the dummy data
+
+def generate_dummy_fire_dataset_delhi(num_points, num_fire_incidents):
+    fake = Faker()
+
+    delhi_latitude_range = (28.5, 28.9)
+    delhi_longitude_range = (76.8, 77.5)
+
+    dataset = []
+
+    for _ in range(num_points - num_fire_incidents):
+        latitude = random.uniform(*delhi_latitude_range)
+        longitude = random.uniform(*delhi_longitude_range)
+
+        timestamp = (datetime.now() - timedelta(days=random.randint(1, 30))).isoformat()
+
+        dataset.append({
+            'latitude': latitude,
+            'longitude': longitude,
+            'timestamp': timestamp,
+            'fire_incident': False
+        })
+
+    for _ in range(num_fire_incidents):
+        latitude = random.uniform(*delhi_latitude_range)
+        longitude = random.uniform(*delhi_longitude_range)
+
+        timestamp = (datetime.now() - timedelta(days=random.randint(1, 30))).isoformat()
+
+        dataset.append({
+            'latitude': latitude,
+            'longitude': longitude,
+            'timestamp': timestamp,
+            'fire_incident': True
+        })
+
+    return dataset
+
+def apply_kmeans(coordinates, num_clusters):
+    kmeans = KMeans(n_clusters=num_clusters, random_state=42).fit(coordinates)
+    clusters = kmeans.predict(coordinates)
+    return clusters
+
+def visualize_map(dummy_data, clusters, fire_stations_data, hospitals_data):
+    my_map = folium.Map(location=[28.6139, 77.2090], zoom_start=10, control_scale=True)
+
+    cluster_colors = ['red', 'blue', 'green', 'pink', 'darkred', 'darkgreen', 'lightgray', 'beige', 'purple', 'darkblue']
+    unique_clusters = set(clusters)
+
+    for idx, data_point in enumerate(dummy_data):
+        cluster_label = clusters[idx]
+        cluster_color = cluster_colors[cluster_label]
+
+        folium.Marker(
+            location=[data_point['latitude'], data_point['longitude']],
+            popup=f"Cluster: {cluster_label + 1}\nTimestamp: {data_point['timestamp']}",
+            icon=folium.Icon(color=cluster_color)
+        ).add_to(my_map)
+
+    for fire_station in fire_stations_data:
+        folium.Marker(
+            location=[fire_station['latitude'], fire_station['longitude']],
+            popup=f"Fire Station: {fire_station['name']}",
+            icon=folium.Icon(color='black')
+        ).add_to(my_map)
+
+    for hospital in hospitals_data:
+        folium.Marker(
+            location=[hospital['latitude'], hospital['longitude']],
+            popup=f"Hospital: {hospital['name']}",
+            icon=folium.Icon(color='orange')
+        ).add_to(my_map)
+
+    my_map.save('static/kmeans_map.html')
+
+@app.route('/')
+def index():
+    num_points = 100
+    num_fire_incidents = 20
+    num_clusters = 10
+
+    dummy_data = generate_dummy_fire_dataset_delhi(num_points, num_fire_incidents)
+    coordinates = [[data_point['latitude'], data_point['longitude']] for data_point in dummy_data]
+    clusters = apply_kmeans(coordinates, num_clusters)
+
+    print("Assigned Clusters:", clusters)
+
+    visualize_map(dummy_data, clusters, fire_stations_data, hospitals_data)
+    return render_template('kmeans_map_dashboard.html')
+
+@app.route('/update_fire_data', methods=['POST'])
+def update_fire_data():
+    new_fire_data = request.get_json()
+    dummy_data.extend(new_fire_data)
+
+    coordinates = [[data_point['latitude'], data_point['longitude']] for data_point in dummy_data]
+    clusters = apply_kmeans(coordinates, num_clusters=6)
+    visualize_map(dummy_data, clusters, fire_stations_data, hospitals_data)
+
+    return jsonify({'message': 'Fire data updated successfully!'})
+
+@app.route('/add_location', methods=['GET', 'POST'])
+def add_location():
+    if request.method == 'POST':
+        latitude = float(request.form.get('latitude'))
+        longitude = float(request.form.get('longitude'))
+
+        timestamp = (datetime.now() - timedelta(days=random.randint(1, 30))).isoformat()
+        new_location = {'latitude': latitude, 'longitude': longitude, 'timestamp': timestamp, 'fire_incident': False}
+        
+        dummy_data.append(new_location)
+        print("appended")
+
+        coordinates = [[data_point['latitude'], data_point['longitude']] for data_point in dummy_data]
+        clusters = apply_kmeans(coordinates, num_clusters=1)
+        visualize_map(dummy_data, clusters, fire_stations_data, hospitals_data)
+
+        return redirect(url_for('index'))
+
+    return render_template('add_location_form.html')
+# ...
+
+@app.route('/add_firestation', methods=['GET', 'POST'])
+def add_firestation():
+    if request.method == 'POST':
+        latitude = float(request.form.get('latitude'))
+        longitude = float(request.form.get('longitude'))
+
+        timestamp = (datetime.now() - timedelta(days=random.randint(1, 30))).isoformat()
+        new_firestation = {'latitude': latitude, 'longitude': longitude, 'name': f'Fire Station {len(fire_stations_data) + 1}'}
+        fire_stations_data.append(new_firestation)
+
+        coordinates = [[data_point['latitude'], data_point['longitude']] for data_point in dummy_data]
+        clusters = apply_kmeans(coordinates, num_clusters=1)
+        visualize_map(dummy_data, clusters, fire_stations_data, hospitals_data)
+
+        print("Added to the map")
+
+        return redirect(url_for('index'))
+
+    return render_template('add_firestation_form.html')
+
+@app.route('/add_hospital', methods=['GET', 'POST'])
+def add_hospital():
+    if request.method == 'POST':
+        latitude = float(request.form.get('latitude'))
+        longitude = float(request.form.get('longitude'))
+
+        timestamp = (datetime.now() - timedelta(days=random.randint(1, 30))).isoformat()
+        new_hospital = {'latitude': latitude, 'longitude': longitude, 'name': f'Hospital {len(hospitals_data) + 1}'}
+        hospitals_data.append(new_hospital)
+        print(hospitals_data)
+
+        coordinates = [[data_point['latitude'], data_point['longitude']] for data_point in hospitals_data]
+        clusters = apply_kmeans(coordinates, num_clusters=6)
+        visualize_map(dummy_data, clusters, fire_stations_data, hospitals_data)
+
+        return redirect(url_for('index'))
+
+    return render_template('add_hospital_form.html')
+
+# ...
 
 if __name__ == '__main__':
     app.run(debug=True)
